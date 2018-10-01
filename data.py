@@ -3,7 +3,7 @@ import numpy as np
 
 
 def load_data():
-    filepath = '../../lung_data.mat'
+    filepath = '../lung_data.mat'
     f = h5py.File(filepath)
 
     img_data = f['lung_data']['image'][0]

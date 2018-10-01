@@ -9,7 +9,7 @@ def configure():
     flags.DEFINE_float('learning_rate', 0.1, 'learning rate')
     flags.DEFINE_boolean('is_train', True, 'is train')
     flags.DEFINE_integer('class_num', 2, 'output class number')
-    flags.DEFINE_integer('batch_size', 10, 'batch size')
+    flags.DEFINE_integer('batch_size', 1, 'batch size')
     flags.DEFINE_integer('train_size', 100, 'batch size')
     flags.DEFINE_float('keep_r', 0.5, 'dropout keep rate')
     # Debug
@@ -35,5 +35,5 @@ def main(_):
 
 if __name__ == '__main__':
     # configure which gpu or cpu to use
-    # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
     tf.app.run()
