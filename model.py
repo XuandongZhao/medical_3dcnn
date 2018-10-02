@@ -108,7 +108,6 @@ def train(conf):
                 _, trainacc = sess.run([training_operation, accuracy_operation],
                                        feed_dict={x: batch_x, y: batch_y, keep_prob: conf.keep_r})
                 total_train_accuracy += (trainacc * len(batch_x))
-                print(trainacc)
             train_accuracy = total_train_accuracy / conf.train_size
             total_test_accuracy = 0
             for offset in range(conf.train_size, total_size, conf.batch_size):
@@ -118,5 +117,5 @@ def train(conf):
                 total_test_accuracy += (testacc * len(batch_x))
             validation_accuracy = total_test_accuracy / (total_size - conf.train_size)
             print('epoch %4d train_acc %.4f test_acc %.4f ' % (i + 1, train_accuracy, validation_accuracy))
-    saver.save(sess,'./modeldir','3dcnn')
+        saver.save(sess,'./modeldir')
     print("Model saved")
