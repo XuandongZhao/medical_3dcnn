@@ -4,9 +4,9 @@ from model import *
 def configure():
     # training
     flags = tf.app.flags
-    flags.DEFINE_integer('epochs', 100, '# of step for training')
+    flags.DEFINE_integer('epochs', 1000, '# of step for training')
     flags.DEFINE_integer('summary_interval', 10, '# of step to save summary')
-    flags.DEFINE_float('learning_rate', 0.1, 'learning rate')
+    flags.DEFINE_float('learning_rate', 0.001, 'learning rate')
     flags.DEFINE_boolean('is_train', True, 'is train')
     flags.DEFINE_integer('class_num', 2, 'output class number')
     flags.DEFINE_integer('batch_size', 5, 'batch size')

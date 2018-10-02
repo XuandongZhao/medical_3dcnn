@@ -84,12 +84,12 @@ def train(conf):
         train_imgs = [train_datas[i]['img'] for i in range(len(train_datas))]
         train_labels = [train_datas[i]['label'] for i in range(len(train_datas))]
         test_imgs = [test_datas[i]['img'] for i in range(len(test_datas))]
-        test_labels = [test_datas[i]['img'] for i in range(len(test_datas))]
+        test_labels = [test_datas[i]['label'] for i in range(len(test_datas))]
     else:
         train_imgs, train_labels, test_imgs, test_labels, img_z, img_w, img_h = load_data(conf.train_size)
     total_size = len(train_labels) + len(test_labels)
 
-    x = tf.placeholder(tf.float32, [conf.batch_size, img_z, img_w, img_h], name='x-input')
+    x = tf.placeholder(tf.float32, [None, img_z, img_w, img_h], name='x-input')
     y = tf.placeholder(tf.int32, name='y-input')
     keep_prob = tf.placeholder(tf.float32)
     one_hot_y = tf.one_hot(y, conf.class_num)
@@ -109,23 +109,36 @@ def train(conf):
         for i in range(conf.epochs):
             x_train, y_train = train_imgs, train_labels
             total_train_accuracy = 0
+            total_train_loss = 0
+            train_output = []
             for offset in range(0, len(y_train), conf.batch_size):
                 end = offset + conf.batch_size
                 batch_x, batch_y = x_train[offset:end], y_train[offset:end]
-                _, trainacc, output = sess.run([training_operation, accuracy_operation, pred],
-                                       feed_dict={x: batch_x, y: batch_y, keep_prob: conf.keep_r})
-                print(output)
+                _, trainacc, output, loss = sess.run([training_operation, accuracy_operation, pred, loss_operation],
+                                               feed_dict={x: batch_x, y: batch_y, keep_prob: conf.keep_r})
+                train_output = train_output + np.argmax(output, 1).tolist()
                 total_train_accuracy += (trainacc * len(batch_x))
+                total_train_loss += loss
             train_accuracy = total_train_accuracy / len(y_train)
-
+            train_loss = total_train_loss / len(y_train)
+            
             x_test, y_test = test_imgs, test_labels
             total_test_accuracy = 0
+            total_test_loss = 0
+            test_output = []
             for offset in range(0, len(y_test), conf.batch_size):
                 end = offset + conf.batch_size
                 batch_x, batch_y = x_test[offset:end], y_test[offset:end]
-                testacc = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y, keep_prob: conf.keep_r})
+                testacc, output, loss = sess.run([accuracy_operation, pred, loss_operation],
+                                           feed_dict={x: batch_x, y: batch_y, keep_prob: conf.keep_r})
+                test_output = test_output + np.argmax(output, 1).tolist()
+                total_test_loss += loss
                 total_test_accuracy += (testacc * len(batch_x))
-            validation_accuracy = total_test_accuracy / len(y_test)
-            print('epoch %4d train_acc %.4f test_acc %.4f ' % (i + 1, train_accuracy, validation_accuracy))
+            test_accuracy = total_test_accuracy / len(y_test)
+            test_loss = total_test_loss / len(y_test)
+            
+            print('Train\nTrue', train_output, '\nPred', train_labels)
+            print('Test\nTrue', test_output, '\nPred', test_labels)
+            print('epoch %4d train_loss %.4f train_acc %.4f test_acc %.4f test_loss %.4f' % (i + 1, train_loss, train_accuracy, test_accuracy, test_loss))
         saver.save(sess, './modeldir')
     print("Model saved")
