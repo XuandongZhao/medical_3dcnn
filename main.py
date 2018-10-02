@@ -4,7 +4,7 @@ from model import *
 def configure():
     # training
     flags = tf.app.flags
-    flags.DEFINE_integer('epochs', 1000, '# of step for training')
+    flags.DEFINE_integer('epochs', 2000, '# of step for training')
     flags.DEFINE_integer('summary_interval', 10, '# of step to save summary')
     flags.DEFINE_float('learning_rate', 0.001, 'learning rate')
     flags.DEFINE_boolean('is_train', True, 'is train')
@@ -35,5 +35,5 @@ def main(_):
 
 if __name__ == '__main__':
     # configure which gpu or cpu to use
-    # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
     tf.app.run()

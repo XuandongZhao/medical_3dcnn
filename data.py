@@ -31,7 +31,7 @@ def load_data(train_num):
         imgs[i] = np.pad(imgs[i], pad_width=npad, mode='constant', constant_values=0)
     imgs = np.asarray(imgs)
 
-    labeldata = f['lung_data']['survivalLabel'][0]
+    labeldata = f['lung_data']['survivalLabel'][0] #ajccLabelSim survivalLabel
     labels = []
     for l in labeldata:
         labels.append(np.array(f[l], dtype=np.int8))

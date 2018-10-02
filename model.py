@@ -139,13 +139,13 @@ def train(conf):
 
             print('True', train_output, '\nPred', train_labels)
             train_sensitivity, train_specificity = sen_spe(train_output, train_labels)
-            print('epoch %4d train_loss %.4f train_acc %.4f train_sen %.4f train_spe %.4f' % (
+            print('Train of epoch %d: loss %.4f acc %.4f sen %.4f spe %.4f' % (
                 i + 1, train_loss, train_accuracy, train_sensitivity, train_specificity))
             print('True', test_output, '\nPred', test_labels)
             test_sensitivity, test_specificity = sen_spe(test_output, test_labels)
-            print('epoch %4d test_loss %.4f test_acc %.4f test_sen %.4f test_spe %.4f' % (
+            print('Test of epoch %d: loss %.4f acc %.4f sen %.4f spe %.4f' % (
                 i + 1, test_loss, test_accuracy, test_sensitivity, test_specificity))
-        saver.save(sess, './modeldir')
+#         saver.save(sess, './modeldir')
     print("Model saved")
 
 
