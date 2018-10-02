@@ -13,20 +13,16 @@ def configure():
     flags.DEFINE_integer('train_size', 100, 'batch size')
     flags.DEFINE_float('keep_r', 0.5, 'dropout keep rate')
     flags.DEFINE_boolean('balance_data', True, 'use balance data')
+
     # Debug
     flags.DEFINE_string('logdir', './logdir', 'Log dir')
     flags.DEFINE_string('modeldir', './modeldir', 'Model dir')
-
+    flags.DEFINE_string('label_name', 'ajccLabelSim', 'label name')  # ajccLabelSim survivalLabel
     flags.DEFINE_integer('reload_step', 0, 'Reload step to continue training')
     flags.DEFINE_integer('test_step', 0, 'Test or predict model at this step')
     # network architecture
     flags.DEFINE_integer('layer_num', 2, 'block number')
-    flags.DEFINE_float('weight_decay', 5e-4, 'Weight for L2 loss on embedding matrix.')
-    flags.DEFINE_boolean('use_pet', True, 'use pet data')
-    # fix bug of flags
-    flags.FLAGS.__dict__['__parsed'] = False
     return flags.FLAGS
-
 
 def main(_):
     conf = configure()
@@ -35,5 +31,5 @@ def main(_):
 
 if __name__ == '__main__':
     # configure which gpu or cpu to use
-    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+    # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
     tf.app.run()
