@@ -115,13 +115,13 @@ def train(conf):
                 end = offset + conf.batch_size
                 batch_x, batch_y = x_train[offset:end], y_train[offset:end]
                 _, trainacc, output, loss = sess.run([training_operation, accuracy_operation, pred, loss_operation],
-                                               feed_dict={x: batch_x, y: batch_y, keep_prob: conf.keep_r})
+                                                     feed_dict={x: batch_x, y: batch_y, keep_prob: conf.keep_r})
                 train_output = train_output + np.argmax(output, 1).tolist()
                 total_train_accuracy += (trainacc * len(batch_x))
                 total_train_loss += loss
             train_accuracy = total_train_accuracy / len(y_train)
             train_loss = total_train_loss / len(y_train)
-            
+
             x_test, y_test = test_imgs, test_labels
             total_test_accuracy = 0
             total_test_loss = 0
@@ -130,15 +130,43 @@ def train(conf):
                 end = offset + conf.batch_size
                 batch_x, batch_y = x_test[offset:end], y_test[offset:end]
                 testacc, output, loss = sess.run([accuracy_operation, pred, loss_operation],
-                                           feed_dict={x: batch_x, y: batch_y, keep_prob: conf.keep_r})
+                                                 feed_dict={x: batch_x, y: batch_y, keep_prob: conf.keep_r})
                 test_output = test_output + np.argmax(output, 1).tolist()
                 total_test_loss += loss
                 total_test_accuracy += (testacc * len(batch_x))
             test_accuracy = total_test_accuracy / len(y_test)
             test_loss = total_test_loss / len(y_test)
-            
-            print('Train\nTrue', train_output, '\nPred', train_labels)
-            print('Test\nTrue', test_output, '\nPred', test_labels)
-            print('epoch %4d train_loss %.4f train_acc %.4f test_acc %.4f test_loss %.4f' % (i + 1, train_loss, train_accuracy, test_accuracy, test_loss))
+
+            print('True', train_output, '\nPred', train_labels)
+            train_sensitivity, train_specificity = sen_spe(train_output, train_labels)
+            print('epoch %4d train_loss %.4f train_acc %.4f train_sen %.4f train_spe %.4f' % (
+                i + 1, train_loss, train_accuracy, train_sensitivity, train_specificity))
+            print('True', test_output, '\nPred', test_labels)
+            test_sensitivity, test_specificity = sen_spe(test_output, test_labels)
+            print('epoch %4d test_loss %.4f test_acc %.4f test_sen %.4f test_spe %.4f' % (
+                i + 1, test_loss, test_accuracy, test_sensitivity, test_specificity))
         saver.save(sess, './modeldir')
     print("Model saved")
+
+
+def sen_spe(res_pred, res_targets):
+    TP = 0
+    FP = 0
+    TN = 0
+    FN = 0
+    for i in range(len(res_targets)):
+        if res_pred[i] == 1 and res_targets[i] == 1:
+            TP += 1
+        elif res_pred[i] == 1 and res_pred[i] != res_targets[i]:
+            FP += 1
+        elif res_pred[i] == 0 and res_targets[i] == 0:
+            TN += 1
+        elif res_pred[i] == 0 and res_pred[i] != res_targets[i]:
+            FN += 1
+    sensitivity = None
+    specificity = None
+    if TP + FN != 0:
+        sensitivity = float(TP) / float(TP + FN)
+    if TN + FP != 0:
+        specificity = float(TN) / float(TN + FP)
+    return sensitivity, specificity
