@@ -79,8 +79,15 @@ def train(conf):
         os.makedirs(conf.modeldir)
     if not os.path.exists(conf.logdir):
         os.makedirs(conf.logdir)
-    imgs, labels, img_z, img_w, img_h = load_data()
-    total_size = len(labels)
+    if conf.balance_data:
+        train_datas, test_datas, img_z, img_w, img_h = load_balance_data(conf.train_size)
+        train_imgs = [train_datas[i]['img'] for i in range(len(train_datas))]
+        train_labels = [train_datas[i]['label'] for i in range(len(train_datas))]
+        test_imgs = [test_datas[i]['img'] for i in range(len(test_datas))]
+        test_labels = [test_datas[i]['img'] for i in range(len(test_datas))]
+    else:
+        train_imgs, train_labels, test_imgs, test_labels, img_z, img_w, img_h = load_data(conf.train_size)
+    total_size = len(train_labels) + len(test_labels)
 
     x = tf.placeholder(tf.float32, [conf.batch_size, img_z, img_w, img_h], name='x-input')
     y = tf.placeholder(tf.int32, name='y-input')
@@ -100,22 +107,25 @@ def train(conf):
     with tf.Session() as sess:
         tf.global_variables_initializer().run()
         for i in range(conf.epochs):
-            X_train, y_train = imgs, labels
+            x_train, y_train = train_imgs, train_labels
             total_train_accuracy = 0
-            for offset in range(0, conf.train_size, conf.batch_size):
+            for offset in range(0, len(y_train), conf.batch_size):
                 end = offset + conf.batch_size
-                batch_x, batch_y = X_train[offset:end], y_train[offset:end]
-                _, trainacc = sess.run([training_operation, accuracy_operation],
+                batch_x, batch_y = x_train[offset:end], y_train[offset:end]
+                _, trainacc, output = sess.run([training_operation, accuracy_operation, pred],
                                        feed_dict={x: batch_x, y: batch_y, keep_prob: conf.keep_r})
+                print(output)
                 total_train_accuracy += (trainacc * len(batch_x))
-            train_accuracy = total_train_accuracy / conf.train_size
+            train_accuracy = total_train_accuracy / len(y_train)
+
+            x_test, y_test = test_imgs, test_labels
             total_test_accuracy = 0
-            for offset in range(conf.train_size, total_size, conf.batch_size):
-                batch_x = X_train[offset:offset + conf.batch_size]
-                batch_y = y_train[offset:offset + conf.batch_size]
+            for offset in range(0, len(y_test), conf.batch_size):
+                end = offset + conf.batch_size
+                batch_x, batch_y = x_test[offset:end], y_test[offset:end]
                 testacc = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y, keep_prob: conf.keep_r})
                 total_test_accuracy += (testacc * len(batch_x))
-            validation_accuracy = total_test_accuracy / (total_size - conf.train_size)
+            validation_accuracy = total_test_accuracy / len(y_test)
             print('epoch %4d train_acc %.4f test_acc %.4f ' % (i + 1, train_accuracy, validation_accuracy))
-        saver.save(sess,'./modeldir')
+        saver.save(sess, './modeldir')
     print("Model saved")

@@ -1,9 +1,9 @@
 import h5py
 import numpy as np
+import random
 
-
-def load_data():
-    filepath = '../lung_data.mat'
+def load_data(train_num):
+    filepath = '../../lung_data.mat'
     f = h5py.File(filepath)
 
     img_data = f['lung_data']['image'][0]
@@ -38,8 +38,66 @@ def load_data():
     labels = np.asarray(labels).reshape(-1)
     print('images shape: ', imgs.shape)
     print('labels shape: ', labels.shape)
-    return imgs, labels, max_z, max_w, max_h
+    idx = np.random.permutation(len(labels))
+    train_idx = idx[0:train_num]
+    test_idx = idx[train_num:]
+    train_imgs = [imgs[i] for i in train_idx]
+    train_labels = [labels[i] for i in train_idx]
+    test_imgs = [imgs[i] for i in test_idx]
+    test_labels = [labels[i] for i in test_idx]
 
+    return train_imgs, train_labels, test_imgs, test_labels, max_z, max_w, max_h
+
+
+def load_balance_data(train_num, class_num=2):
+    train_imgs, train_labels, test_imgs, test_labels, max_z, max_w, max_h = load_data(train_num)
+    train_data = [[] for i in range(class_num)]
+    for i in range(len(train_imgs)):
+        tempdata = {}
+        tempdata['img'] = train_imgs[i]
+        tempdata['label'] = train_labels[i]
+        train_data[train_labels[i]].append(tempdata)
+
+    maxtrainlen = 0
+    maxtrainidx = 0
+    for i in range(len(train_data)):
+        if len(train_data[i]) > maxtrainlen:
+            maxtrainlen = len(train_data[i])
+            maxtrainidx = i
+    all_train_data = []
+    for i in range(maxtrainlen):
+        for j in range(len(train_data)):
+            if j == maxtrainidx:
+                all_train_data.append(train_data[j][i])
+            else:
+                tempidx = random.randint(0, len(train_data[j]) - 1)
+                all_train_data.append(train_data[j][tempidx])
+    print('all train data %d' % len(all_train_data))
+
+    test_data = [[] for i in range(class_num)]
+    for i in range(len(test_imgs)):
+        tempdata = {}
+        tempdata['img'] = test_imgs[i]
+        tempdata['label'] = test_labels[i]
+        test_data[test_labels[i]].append(tempdata)
+
+    maxtestlen = 0
+    maxtestidx = 0
+    for i in range(len(test_data)):
+        if len(test_data[i]) > maxtestlen:
+            maxtestlen = len(test_data[i])
+            maxtestidx = i
+    all_test_data = []
+    for i in range(maxtestlen):
+        for j in range(len(test_data)):
+            if j == maxtestidx:
+                all_test_data.append(test_data[j][i])
+            else:
+                tempidx = random.randint(0, len(test_data[j]) - 1)
+                all_test_data.append(test_data[j][tempidx])
+    print('all test data %d' % len(all_test_data))
+
+    return all_train_data, all_test_data, max_z, max_w, max_h
 
 def main():
     load_data()
