@@ -2,8 +2,9 @@ import h5py
 import numpy as np
 import random
 
-def load_data(train_num):
-    filepath = '../lung_data.mat'
+
+def load_data(train_num, label_name):
+    filepath = '../../lung_data.mat'
     f = h5py.File(filepath)
 
     img_data = f['lung_data']['image'][0]
@@ -31,7 +32,7 @@ def load_data(train_num):
         imgs[i] = np.pad(imgs[i], pad_width=npad, mode='constant', constant_values=0)
     imgs = np.asarray(imgs)
 
-    labeldata = f['lung_data']['survivalLabel'][0] #ajccLabelSim survivalLabel
+    labeldata = f['lung_data'][label_name][0]  # ajccLabelSim survivalLabel
     labels = []
     for l in labeldata:
         labels.append(np.array(f[l], dtype=np.int8))
@@ -49,13 +50,15 @@ def load_data(train_num):
     return train_imgs, train_labels, test_imgs, test_labels, max_z, max_w, max_h
 
 
-def load_balance_data(train_num, class_num=2):
-    train_imgs, train_labels, test_imgs, test_labels, max_z, max_w, max_h = load_data(train_num)
+def load_balance_data(train_num, label_name, class_num=2):
+    train_imgs, train_labels, test_imgs, test_labels, max_z, max_w, max_h = load_data(train_num, label_name)
     train_data = [[] for i in range(class_num)]
     for i in range(len(train_imgs)):
         tempdata = {}
         tempdata['img'] = train_imgs[i]
         tempdata['label'] = train_labels[i]
+        if train_labels[i] == 2:
+            continue
         train_data[train_labels[i]].append(tempdata)
 
     maxtrainlen = 0
@@ -79,6 +82,8 @@ def load_balance_data(train_num, class_num=2):
         tempdata = {}
         tempdata['img'] = test_imgs[i]
         tempdata['label'] = test_labels[i]
+        if test_labels[i] == 2:
+            continue
         test_data[test_labels[i]].append(tempdata)
 
     maxtestlen = 0
@@ -98,6 +103,7 @@ def load_balance_data(train_num, class_num=2):
     print('all test data %d' % len(all_test_data))
 
     return all_train_data, all_test_data, max_z, max_w, max_h
+
 
 def main():
     load_data()
