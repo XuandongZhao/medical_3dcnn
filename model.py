@@ -80,13 +80,13 @@ def train(conf):
     if not os.path.exists(conf.logdir):
         os.makedirs(conf.logdir)
     if conf.balance_data:
-        train_datas, test_datas, img_z, img_w, img_h = load_balance_data(conf.train_size)
+        train_datas, test_datas, img_z, img_w, img_h = load_balance_data(conf.train_size, conf.label_name)
         train_imgs = [train_datas[i]['img'] for i in range(len(train_datas))]
         train_labels = [train_datas[i]['label'] for i in range(len(train_datas))]
         test_imgs = [test_datas[i]['img'] for i in range(len(test_datas))]
         test_labels = [test_datas[i]['label'] for i in range(len(test_datas))]
     else:
-        train_imgs, train_labels, test_imgs, test_labels, img_z, img_w, img_h = load_data(conf.train_size)
+        train_imgs, train_labels, test_imgs, test_labels, img_z, img_w, img_h = load_data(conf.train_size, conf.label_name)
     total_size = len(train_labels) + len(test_labels)
 
     x = tf.placeholder(tf.float32, [None, img_z, img_w, img_h], name='x-input')
