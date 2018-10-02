@@ -75,10 +75,10 @@ def configure_networks(imgs, img_z, img_w, img_h, keep_prob):
 
 
 def train(conf):
-    if not os.path.exists(conf.modeldir):
-        os.makedirs(conf.modeldir)
-    if not os.path.exists(conf.logdir):
-        os.makedirs(conf.logdir)
+    # if not os.path.exists(conf.modeldir):
+    #     os.makedirs(conf.modeldir)
+    # if not os.path.exists(conf.logdir):
+    #     os.makedirs(conf.logdir)
     if conf.balance_data:
         train_datas, test_datas, img_z, img_w, img_h = load_balance_data(conf.train_size, conf.label_name)
         train_imgs = [train_datas[i]['img'] for i in range(len(train_datas))]

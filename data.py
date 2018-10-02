@@ -4,7 +4,7 @@ import random
 
 
 def load_data(train_num, label_name):
-    filepath = '../../lung_data.mat'
+    filepath = '../lung_data.mat'
     f = h5py.File(filepath)
 
     img_data = f['lung_data']['image'][0]
