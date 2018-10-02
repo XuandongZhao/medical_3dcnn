@@ -13,6 +13,7 @@ def configure():
     flags.DEFINE_integer('train_size', 100, 'batch size')
     flags.DEFINE_float('keep_r', 0.5, 'dropout keep rate')
     flags.DEFINE_boolean('balance_data', True, 'use balance data')
+    flags.DEFINE_string('label_name', 'ajccLabelSim', 'label name')  # ajccLabelSim survivalLabel
     # Debug
     flags.DEFINE_string('logdir', './logdir', 'Log dir')
     flags.DEFINE_string('modeldir', './modeldir', 'Model dir')
